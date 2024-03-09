@@ -1,8 +1,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-mongoose.connect(process.env.DB);
-
 // Movie schema
 var MovieSchema = new Schema({
     title: { type: String, required: true, index: true },
