@@ -94,6 +94,7 @@ router.route('/movies')
         o.message = "GET movies";
         res.json(o);
         */
+       // finding all movies
         Movie.find({}, (err, movies) => {
             if (err) {
                 return res.status(500).json({ success: false, message: 'Failed to retrieve movies.', error: err });
@@ -105,11 +106,19 @@ router.route('/movies')
             return res.status(200).json({ success: true, movies: movies });
         });
     })
-    .post(authJwtController.isAuthenticated, (req, res) => {
+    .post(authJwtController.isAuthenticated, async (req, res) => {
+        /*
         var o = getJSONObjectForMovieRequirement(req);
         o.status = 200;
         o.message = "movie saved";
         res.json(o);
+        */
+        try {
+            const newMovie = await Movie.create(req.body); // Create a new movie using the request body
+            res.status(201).json(newMovie); // Respond with the created movie and status code 201 (Created)
+        } catch (error) {
+            res.status(400).json({ message: error.message }); // Respond with an error if something goes wrong
+        }
     })
     .put(authJwtController.isAuthenticated, (req, res) => {
         // HTTP PUT Method
