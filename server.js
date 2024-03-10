@@ -144,6 +144,56 @@ router.route('/movies')
         res.status(405).send({ message: 'HTTP method not supported.' });
     });
 
+router.route('/movies/:title')
+    // getting a specific movie
+    .get(authJwtController.isAuthenticated, (req, res) => {
+        // Retrieve the movie based on the title parameter
+        Movie.findOne({ title: req.params.title }, (err, movie) => {
+            if (err) {
+                return res.status(500).send({ message: 'Internal server error' });
+            }
+            if (!movie) {
+                return res.status(404).send({ message: 'Movie not found' });
+            }
+            // Return the found movie
+            res.status(200).send({ movie });
+        });
+    })
+    .post(authJwtController.isAuthenticated, (req, res) => {
+        var o = getJSONObjectForMovieRequirement(req);
+        o.status = 200;
+        o.message = "movie with title posted";
+        res.json(o);
+    })
+    // PUT (Update) a specific movie
+    .put(authJwtController.isAuthenticated, (req, res) => {
+        // Update the movie based on the title parameter
+        Movie.findOneAndUpdate({ title: req.params.title }, req.body, { new: true }, (err, movie) => {
+            if (err) {
+                return res.status(500).send({ message: 'Internal server error' });
+            }
+            if (!movie) {
+                return res.status(404).send({ message: 'Movie not found' });
+            }
+            // Return the updated movie
+            res.status(200).send({ movie });
+        });
+    })
+    // DELETE a specific movie
+    .delete(authJwtController.isAuthenticated, (req, res) => {
+        // Delete the movie based on the title parameter
+        Movie.findOneAndDelete({ title: req.params.title }, (err, movie) => {
+            if (err) {
+                return res.status(500).send({ message: 'Internal server error' });
+            }
+            if (!movie) {
+                return res.status(404).send({ message: 'Movie not found' });
+            }
+            // Return a success message
+            res.status(200).send({ message: 'Movie deleted successfully' });
+        });
+    });
+
 app.use('/', router);
 app.listen(process.env.PORT || 8080);
 module.exports = app; // for testing only
