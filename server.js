@@ -87,13 +87,25 @@ router.post('/signin', function (req, res) {
 });
 
 router.route('/movies')
-    .get((req, res) => {
+    .get(authJwtController.isAuthenticated, (req, res) => {
+        /*
         var o = getJSONObjectForMovieRequirement(req);
         o.status = 200;
         o.message = "GET movies";
         res.json(o);
+        */
+        Movie.find({}, (err, movies) => {
+            if (err) {
+                return res.status(500).json({ success: false, message: 'Failed to retrieve movies.', error: err });
+            }
+            if (!movies || movies.length === 0) {
+                return res.status(404).json({ success: false, message: 'No movies found.' });
+            }
+            // Return the found movies
+            return res.status(200).json({ success: true, movies: movies });
+        });
     })
-    .post((req, res) => {
+    .post(authJwtController.isAuthenticated, (req, res) => {
         var o = getJSONObjectForMovieRequirement(req);
         o.status = 200;
         o.message = "movie saved";
@@ -108,7 +120,7 @@ router.route('/movies')
         o.message = "movie updated";
         res.json(o);
     })
-    .delete(authController.isAuthenticated, (req, res) => {
+    .delete(authJwtController.isAuthenticated, (req, res) => {
         // HTTP DELETE Method
         // Requires Basic authentication.
         // Returns a JSON object with status, message, headers, query, and env.
